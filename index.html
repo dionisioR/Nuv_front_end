@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuv Finance Dashboard</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --dark-bg: #111827;
+      --dark-sidebar: #18212f;
+      --dark-card: #1f2937;
+      --dark-border: #2c3748;
+      --dark-text: #f1f5f9;
+      --dark-muted: #94a3b8;
+      --primary: #1683ff;
+      --primary-soft: #edf5ff;
+      --bg: #f5f6f8;
+      --sidebar: #ffffff;
+      --card: #ffffff;
+      --text: #151515;
+      --muted: #8b8b8b;
+      --border: #ebebeb;
+      --success: #26b36a;
+      --warning: #f5b545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      transition: background-color 0.35s ease, color 0.35s ease;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      transition: transform 0.35s ease-in-out;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      width: 245px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 18px 16px 30px;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 34px;
+      padding-left: 6px;
+    }
+
+    .menu-section {
+      margin-bottom: 30px;
+    }
+
+    .menu-title {
+      font-size: 12px;
+      color: #9b9b9b;
+      margin-bottom: 12px;
+      padding-left: 6px;
+      text-transform: capitalize;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 10px;
+      color: #555;
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 6px;
+      transition: 0.2s ease;
+    }
+
+    .menu-item:hover {
+      background: #f6f8fb;
+      color: var(--primary);
+    }
+
+    .menu-item.active {
+      background: #f2f7ff;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .menu-item i {
+      font-size: 18px;
+    }
+
+    /* MAIN */
+    .main {
+      transition: margin-left 0.35s ease-in-out, width 0.35s ease-in-out;
+      flex: 1;
+      margin-left: 245px;
+      width: calc(100% - 245px);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      height: 70px;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 22px;
+      gap: 20px;
+    }
+
+    .menu-toggle {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #555;
+      font-size: 22px;
+      transition: 0.2s ease;
+      margin-right: auto;
+    }
+
+    .theme-toggle {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #555;
+      font-size: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: #f5f7fb;
+      color: var(--primary);
+      transform: rotate(8deg) scale(1.04);
+    }
+
+    .menu-toggle:hover {
+      background: #f5f7fb;
+      color: var(--primary);
+    }
+
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+
+    .main.expanded {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .search-box {
+      position: relative;
+      width: 160px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a5a5a5;
+      font-size: 14px;
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 12px 9px 35px;
+      background: #fafafa;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f4f4f4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .breadcrumb-custom {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 28px;
+    }
+
+    /* CARDS */
+    .dashboard-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      height: 100%;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .filter-card label {
+      font-size: 13px;
+      margin-bottom: 8px;
+      color: #4e4e4e;
+      display: block;
+    }
+
+    .filter-card select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #f9f9f9;
+      padding: 11px 14px;
+      color: #999;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1.5fr;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .balance-title {
+      color: #9a9a9a;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .balance-value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .growth {
+      font-size: 13px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mini-chart {
+      height: 60px;
+      margin-top: 8px;
+    }
+
+    .small-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    .small-card {
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .small-card .label {
+      color: #a1a1a1;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .small-card .number {
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .donut-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 100%;
+      gap: 10px;
+    }
+
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #7a7a7a;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
+
+    /* TABLE */
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .table-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .table-search {
+      position: relative;
+    }
+
+    .table-search i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9f9f9f;
+      font-size: 14px;
+    }
+
+    .table-search input {
+      border: 1px solid var(--border);
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 10px 12px 10px 35px;
+      width: 160px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8c8c8c;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1150px;
+    }
+
+    thead {
+      background: #fbfbfb;
+    }
+
+    th {
+      padding: 16px 18px;
+      font-size: 13px;
+      color: #5d5d5d;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 16px 18px;
+      border-bottom: 1px solid #f1f1f1;
+      font-size: 13px;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: #fcfcfc;
+    }
+
+    .badge-custom {
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 82px;
+    }
+
+    .badge-warning {
+      background: #fff7ea;
+      color: #c68b23;
+      border: 1px solid #efcc89;
+    }
+
+    .badge-info {
+      background: #edf7ff;
+      color: #2390dc;
+      border: 1px solid #87c6f0;
+    }
+
+    .badge-success {
+      background: #f3f7fb;
+      color: #3692cc;
+      border: 1px solid #d6e5f3;
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      display: inline-block;
+      background: #fff;
+    }
+
+    .table-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .pagination-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pagination-box select {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      outline: none;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .pagination-custom {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .pagination-custom button {
+      border: none;
+      background: #fff;
+      width: 40px;
+      height: 40px;
+      font-size: 13px;
+      border-right: 1px solid var(--border);
+    }
+
+    .pagination-custom button:last-child {
+      border-right: none;
+    }
+
+    .pagination-custom button.active {
+      background: #f4f8ff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* RESPONSIVE */
+    @media(max-width: 1200px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    body.dark-mode {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    body.dark-mode .sidebar {
+      background: var(--dark-sidebar);
+      border-color: var(--dark-border);
+    }
+
+    body.dark-mode .topbar,
+    body.dark-mode .dashboard-card,
+    body.dark-mode .table-card,
+    body.dark-mode .icon-btn,
+    body.dark-mode .theme-toggle,
+    body.dark-mode .menu-toggle,
+    body.dark-mode .pagination-custom button,
+    body.dark-mode .pagination-box select,
+    body.dark-mode .search-box input,
+    body.dark-mode .table-search input,
+    body.dark-mode .filter-card select {
+      background: var(--dark-card);
+      color: var(--dark-text);
+      border-color: var(--dark-border);
+    }
+
+    body.dark-mode .table-card table,
+    body.dark-mode thead {
+      background: var(--dark-card);
+    }
+
+    body.dark-mode td,
+    body.dark-mode th,
+    body.dark-mode .table-top,
+    body.dark-mode .table-footer {
+      border-color: var(--dark-border);
+      color: #dbe3ee;
+    }
+
+    body.dark-mode .menu-item {
+      color: #c7d1df;
+    }
+
+    body.dark-mode .menu-item:hover,
+    body.dark-mode .menu-item.active {
+      background: rgba(22,131,255,0.15);
+      color: #6fb3ff;
+    }
+
+    body.dark-mode .menu-title,
+    body.dark-mode .balance-title,
+    body.dark-mode .small-card .label,
+    body.dark-mode .legend-item,
+    body.dark-mode .breadcrumb-custom {
+      color: var(--dark-muted);
+    }
+
+    body.dark-mode .checkbox {
+      background: #233044;
+      border-color: #334155;
+    }
+
+    body.dark-mode tbody tr:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    body.dark-mode .avatar {
+      background: #243041;
+      color: #fff;
+    }
+
+    @media(max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">Nuv Finance</div>
+
+    <div class="menu-section">
+      <a href="#" class="menu-item active">
+        <i class="bi bi-grid"></i>
+        Dashboard
+      </a>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Menu Principal</div>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-square"></i>
+        Transações
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-diagram-3"></i>
+        Acessos
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-clock-history"></i>
+        Monitoramento
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-journal-text"></i>
+        Atividades do Piloto
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-gear"></i>
+        Nova Operação
+      </a>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Institucional</div>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-people"></i>
+        Usuários
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-buildings"></i>
+        BaaS
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-shield-check"></i>
+        Segurança
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-gear"></i>
+        Settings
+      </a>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title">Configurações</div>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-person-lines-fill"></i>
+        Contatos
+      </a>
+
+      <a href="#" class="menu-item">
+        <i class="bi bi-sliders"></i>
+        Configurações
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="search-box">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar">
+      </div>
+
+      <button class="theme-toggle" id="themeToggle">
+        <i class="bi bi-moon-stars" id="themeIcon"></i>
+      </button>
+
+      <div class="avatar">N</div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <div class="breadcrumb-custom">
+        <span>Dashboard</span>
+        <i class="bi bi-chevron-right"></i>
+        <span>Dashboard</span>
+      </div>
+
+      <h1 class="page-title">Dashboard</h1>
+
+      <!-- FILTERS -->
+      <div class="filters-grid">
+
+        <div class="dashboard-card filter-card">
+          <label>Filtros Gerais</label>
+          <select>
+            <option>Filtros Gerais</option>
+          </select>
+        </div>
+
+        <div class="dashboard-card filter-card">
+          <label>Filtros Gerais</label>
+          <select>
+            <option>Filtros Gerais</option>
+          </select>
+        </div>
+
+        <div class="dashboard-card filter-card">
+          <label>Filtros Gerais</label>
+          <select>
+            <option>Filtros Gerais</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics-grid">
+
+        <!-- BALANCE -->
+        <div class="dashboard-card">
+          <div class="balance-title">Saldo</div>
+
+          <div class="balance-value">R$ 6.492.585,35</div>
+
+          <div class="growth">
+            80% de aumento com relação a ontem
+            <i class="bi bi-arrow-up-right"></i>
+          </div>
+
+          <div class="mini-chart">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+
+        <!-- SMALL CARDS -->
+        <div class="small-metrics">
+
+          <div class="dashboard-card small-card">
+            <div class="label">Aguardando Piloto</div>
+            <div class="number">0</div>
+          </div>
+
+          <div class="dashboard-card small-card">
+            <div class="label">Consultas</div>
+            <div class="number">2.174.570</div>
+          </div>
+
+          <div class="dashboard-card small-card">
+            <div class="label">Canceladas (24h)</div>
+            <div class="number">7.719</div>
+          </div>
+
+          <div class="dashboard-card small-card">
+            <div class="label">Número de Chaves</div>
+            <div class="number">4.522</div>
+          </div>
+        </div>
+
+        <!-- DONUT -->
+        <div class="dashboard-card">
+          <div class="balance-title mb-3">Resumo dos movimentos do dia</div>
+
+          <div class="donut-wrapper">
+            <div class="legend">
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#1683ff"></div>
+                Entradas
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-dot" style="background:#e7edf5"></div>
+                Saídas
+              </div>
+            </div>
+
+            <div style="width:180px;height:180px;">
+              <canvas id="donutChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-card">
+
+        <div class="table-top">
+          <div class="table-title">Transações</div>
+
+          <div class="table-actions">
+            <div class="table-search">
+              <i class="bi bi-search"></i>
+              <input type="text" placeholder="Buscar">
+            </div>
+
+            <button class="icon-btn">
+              <i class="bi bi-funnel"></i>
+            </button>
+
+            <button class="icon-btn">
+              <i class="bi bi-layout-three-columns"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th><span class="checkbox"></span></th>
+                <th>Status</th>
+                <th>Movimento</th>
+                <th>Valor</th>
+                <th>Instituição Pagadora</th>
+                <th>AG Pagador</th>
+                <th>Instituição Recebedora</th>
+                <th>AG Recebedor</th>
+                <th>Endtoend</th>
+                <th>Data Criação</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-warning">Pendente</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-info">Aceita</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-success">Concluída</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-success">Concluída</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-success">Concluída</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+
+              <tr>
+                <td><span class="checkbox"></span></td>
+                <td><span class="badge-custom badge-success">Concluída</span></td>
+                <td><span class="badge-custom badge-success">Crédito</span></td>
+                <td>R$ 120,42</td>
+                <td>Instituição Exemplo 1</td>
+                <td>1234</td>
+                <td>Instituição Exemplo 2</td>
+                <td>4548</td>
+                <td>64gr84g89d4h9d84g</td>
+                <td>21/05/2026 07:36:41</td>
+                <td><i class="bi bi-three-dots-vertical"></i></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div>Mostrando 1 a 10 de 13 resultados</div>
+
+          <div class="pagination-box">
+            <select>
+              <option>10</option>
+              <option>25</option>
+              <option>50</option>
+            </select>
+
+            <div class="pagination-custom">
+              <button class="active">1</button>
+              <button>2</button>
+              <button><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // LINE CHART
+  const lineCtx = document.getElementById('lineChart');
+
+  new Chart(lineCtx, {
+    type: 'line',
+    data: {
+      labels: ['1', '2', '3', '4', '5', '6', '7'],
+      datasets: [{
+        data: [10, 8, 18, 15, 24, 19, 26],
+        borderColor: '#1683ff',
+        borderWidth: 2,
+        tension: 0.5,
+        pointRadius: 0,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          enabled: false
+        }
+      },
+      scales: {
+        x: {
+          display: false,
+          grid: {
+            display: false
+          }
+        },
+        y: {
+          display: false,
+          grid: {
+            display: false
+          }
+        }
+      }
+    }
+  });
+
+  // THEME TOGGLE
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+
+    if(document.body.classList.contains('dark-mode')) {
+      themeIcon.classList.remove('bi-moon-stars');
+      themeIcon.classList.add('bi-sun');
+    } else {
+      themeIcon.classList.remove('bi-sun');
+      themeIcon.classList.add('bi-moon-stars');
+    }
+  });
+
+  // MENU TOGGLE
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar = document.querySelector('.sidebar');
+  const main = document.querySelector('.main');
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+  });
+
+  // DONUT CHART
+  const donutCtx = document.getElementById('donutChart');
+
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Entradas', 'Saídas'],
+      datasets: [{
+        data: [75, 25],
+        backgroundColor: ['#1683ff', '#e8edf5'],
+        borderWidth: 0,
+        cutout: '58%'
+      }]
+    },
+    options: {
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
